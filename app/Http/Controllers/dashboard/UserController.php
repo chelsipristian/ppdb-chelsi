@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Validator;
+
 
 class UserController extends Controller
 {
@@ -17,14 +19,14 @@ class UserController extends Controller
     public function index(Request $request, User $users)
     {
         $q = $request->input('q');
-
+        
         $active = 'Users';
 
         $users = $users->when($q, function($query) use ($q) {
-                    return $query->where('name', 'like', '%' .$q. '%')
-                                 ->orwhere('email', 'like', '%' .$q. '%');
+            return $query->where('name', 'like', '%' .$q. '%')
+                         ->orwhere('email', 'like', '%' .$q. '%');
         })
-        
+
         ->paginate(10);
 
         $request = $request->all();
@@ -42,7 +44,14 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $active = 'User';
+        $users = User::all();
+        return view('dashboard/user/form', [
+            'users' => $users,
+            'active' => $active,
+            'button' =>'Create',
+            'url'    =>'dashboard.user.store'
+        ]);
     }
 
     /**
@@ -53,7 +62,39 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' =>'required',
+            'email' =>'required',
+            'alamat' =>'required',
+            'password' => 'required|min:8', // Tambahkan validasi untuk password baru
+            'password_confirmation' => 'same:password', // Pastikan konfirmasi password sama dengan password
+        ]);
+    
+        if ($validator->fails()) {
+            return redirect()
+                ->route('dashboard.user.create')
+                ->withErrors($validator)
+                ->withInput();
+        } else {
+            //Simpan data User
+            $user = new User(); //Tambahkan ini untuk membuat objek User
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->alamat = $request->input('alamat');
+            
+        // Menginput password jika ada input baru
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        // Menyimpan
+        $user->save();
+        
+        $messageKey = 'user.store';
+        return redirect()
+            ->route('dashboard.user')
+            ->with('message', __('message.user.store', ['name' => $request->input('name')]));
+        }
     }
 
     /**
@@ -73,12 +114,15 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        //
-        $user = USER::find($id);
-        $active='Users';
-        return view('dashboard/user/form', ['user' => $user, 'active' => $active]);
+        $active = 'Users';
+        return view('dashboard/user/form', [
+            'active' => $active,
+            'user'   => $user,
+            'button' =>'Update',        
+            'url'    =>'dashboard.user.update'
+        ]);
     }
 
     /**
@@ -88,28 +132,45 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
-        $user = USER::find($id);
+    public function update(Request $request, User $user)
+{
+    // Validasi input
+    $validator = Validator::make($request->all(), [
+        'name' =>'required',
+        'email' =>'required',
+        'alamat' =>'required',
+        'password' => 'nullable|min:8', // Tambahkan validasi untuk password baru
+        'password_confirmation' => 'same:password', // Pastikan konfirmasi password sama dengan password
+    ]);
 
-        $validator = VALIDATOR::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|unique:App\Models\User,email,'.$id
-        ]);
+    // Jika validasi gagal
+    if($validator->fails()){
+        return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+    } else {
+        // Mengupdate atribut user
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->alamat = $request->input('alamat');
+    
 
-        if($validator->fails()){
-            return redirect('dashboard/user/edit/'.$id)
-                    ->withErrors($validator)
-                    ->withInput();
-
-        }else{
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
-            $user->save();
-            return redirect('dashboard/users');
+        // Mengupdate password jika ada input baru
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->input('password'));
         }
+
+        // Menyimpan perubahan
+        $user->save();
+        
+        $messageKey = 'user.update';
+        return redirect()
+            ->route('dashboard.users')
+            ->with('message', __('message.user.update', ['name' => $request->input('name')]));
+
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -117,11 +178,14 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = USER::find($id);
+        $name = $user->name;
         $user->delete();
-        return redirect('dashboard/users');
+        $messageKey = 'user.delete';
+        return redirect()
+                ->route('dashboard.user')
+                ->with('message', __('message.user.delete', ['name' => $name]));
         //
     }
 }

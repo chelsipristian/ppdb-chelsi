@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameIdToUseridInUsersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class RenameIdToUseridInUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('id', 'userid');
+        Schema::table('users', function(blueprint $table){
+            $table->string('level');
         });
     }
 
@@ -25,8 +25,8 @@ class RenameIdToUseridInUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('userid', 'id');
+        Schema::table('users', function(blueprint $table){
+            $table->dropColumn('level');
         });
     }
 };

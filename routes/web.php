@@ -20,34 +20,35 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::middleware('auth')->group(function(){
+    //Dashboard
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/dashboard', [App\Http\Controllers\dashboard\DashboardController::class, 'index'])->name('dashboard');
 
-//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/dashboard', [App\Http\Controllers\dashboard\DashboardController::class, 'index']);
+    Route::middleware(['auth', 'role:3'])->group(function () {
+    //Users
+    Route::get('/dashboard/users', [App\Http\Controllers\dashboard\UserController::class, 'index'])->name('dashboard.users');
+    Route::get('/dashboard/user/create', [App\Http\Controllers\dashboard\UserController::class, 'create'])->name('dashboard.user.create');
+    Route::post('/dashboard/user', [App\Http\Controllers\dashboard\UserController::class, 'store'])->name('dashboard.user.store');
+    Route::get('/dashboard/user/edit/{user}', [App\Http\Controllers\dashboard\UserController::class, 'edit'])->name('dashboard.user.edit');
+    Route::put('/dashboard/user/edit/{user}', [App\Http\Controllers\dashboard\UserController::class, 'update'])->name('dashboard.user.update');
+    Route::delete('/dashboard/user/delete/{user}', [App\Http\Controllers\dashboard\UserController::class, 'destroy'])->name('dashboard.user.delete');
+    });
+    
+    Route::middleware(['auth', 'role:2'])->group(function () {        
+    });
 
-//Users
-Route::get('/dashboard/users', [App\Http\Controllers\dashboard\UserController::class, 'index'])->name('home');
+    //Menu
+    Route::get('/dashboard', [App\Http\Controllers\dashboard\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'index'])->name('dashboard.student');
+    Route::get('/dashboard/users', [App\Http\Controllers\dashboard\UserController::class, 'index'])->name('dashboard.users');
 
-//Edit
-Route::get('/dashboard/user/edit/{id}', [App\Http\Controllers\dashboard\UserController::class, 'edit'])->name('home');
-
-//Update
-Route::post('/dashboard/user/update/{id}', [App\Http\Controllers\dashboard\UserController::class, 'update'])->name('home');
-
-//Delete
-Route::delete('/dashboard/user/delete/{id}', [App\Http\Controllers\dashboard\UserController::class, 'destroy'])->name('home');
+    Route::middleware(['auth', 'role:1'])->group(function () {
+    //Student
+    Route::get('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'index'])->name('dashboard.student');
+    Route::get('/dashboard/student/create', [App\Http\Controllers\dashboard\StudentController::class, 'create'])->name('dashboard.student.create');
+    Route::post('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'store'])->name('dashboard.student.store');
+    Route::delete('/dashboard/student/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'destroy'])->name('dashboard.student.delete');
+    Route::get('/dashboard/student/edit/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'edit'])->name('dashboard.student.edit');
+    Route::put('/dashboard/student/edit/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'update'])->name('dashboard.student.update');
+    });
 });
-
-//Menu
-Route::get('/dashboard', [App\Http\Controllers\dashboard\DashboardController::class, 'index'])->name('dashboard');
-Route::get('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'index'])->name('dashboard.student');
-Route::get('/dashboard/admin', [App\Http\Controllers\dashboard\AdminController::class, 'index'])->name('dashboard.admin');
-Route::get('/dashboard/jurusan', [App\Http\Controllers\dashboard\JurusanController::class, 'index'])->name('dashboard.jurusan');
-Route::get('/dashboard/users', [App\Http\Controllers\dashboard\UserController::class, 'index'])->name('dashboard.users');
-
-//Student
-Route::get('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'index'])->name('dashboard.student');
-Route::get('/dashboard/student/create', [App\Http\Controllers\dashboard\StudentController::class, 'create'])->name('dashboard.student.create');
-Route::post('/dashboard/student', [App\Http\Controllers\dashboard\StudentController::class, 'store'])->name('dashboard.student.store');
-Route::delete('/dashboard/student/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'destroy'])->name('dashboard.student.delete');
-Route::get('/dashboard/student/edit/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'edit'])->name('dashboard.student.edit');
-Route::put('/dashboard/student/edit/{student}', [App\Http\Controllers\dashboard\StudentController::class, 'update'])->name('dashboard.student.update');

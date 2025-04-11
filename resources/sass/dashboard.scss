@@ -1,5 +1,6 @@
 body{
     background:white;
+    font-family: "Poppins", sans-serif;
 }
 
 .main-content{
@@ -10,7 +11,7 @@ body{
 .nav-link{
     color: #000;
     opacity: 0.7;
-    padding: 1em 3em;
+    padding: 0.7em 0.9em;
 }
 
 .nav-link:hover{
@@ -49,5 +50,5 @@ table.table tr td{
 }
 
 .col-thumbnail{
-    max-width: 40px;
+    max-width: 75px;
 }

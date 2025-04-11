@@ -13,11 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->string('nisn', 250);
+        Schema::create('student', function (Blueprint $table) {
+            $table->id('nisn');
+            $table->string('nama', 250);
+            $table->string('alamat', 250);
+            $table->string('asal_sekolah', 250);
+            $table->date('tgllahir', 250);
+            $table->string('jenis_kelamin', 250);
+            $table->string('email', 250);
             $table->string('thumbnail', 250);
-            $table->longText('description', 250);
             $table->softDeletes('deleted_at');
             $table->timestamps();
         });
@@ -30,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('student');
     }
 };
